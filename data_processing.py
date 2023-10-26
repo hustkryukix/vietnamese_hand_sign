@@ -3,37 +3,7 @@ import cv2
 import numpy as np
 import math
 import mediapipe as mp
-
-#auto balance brightness and contrast of image data
-def automatic_brightness_and_contrast(image, clip_hist_percent=1):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # Calculate grayscale histogram
-    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
-    hist_size = len(hist)
-    # Calculate cumulative distribution from the histogram
-    accumulator = []
-    accumulator.append(float(hist[0]))
-    for index in range(1, hist_size):
-        accumulator.append(accumulator[index - 1] + float(hist[index]))
-    # Locate points to clip
-    maximum = accumulator[-1]
-    clip_hist_percent *= (maximum / 100.0)
-    clip_hist_percent /= 2.0
-    # Locate left cut
-    minimum_gray = 0
-    while accumulator[minimum_gray] < clip_hist_percent:
-        minimum_gray += 1
-    # Locate right cut
-    maximum_gray = hist_size - 1
-    while accumulator[maximum_gray] >= (maximum - clip_hist_percent):
-        maximum_gray -= 1
-    # Calculate alpha and beta values
-    alpha = 255 / (maximum_gray - minimum_gray)
-    beta = -minimum_gray * alpha
-    auto_result = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
-    return auto_result
-
-#hand detector tool
+#hand detector tool   #######B1: gọi class Hand detector
 class HandDetector:
     def __init__(self, mode=False, maxHands=2, detectionCon=0.5, minTrackCon=0.5):
         self.mode = mode
@@ -88,14 +58,51 @@ class HandDetector:
             return all_hands, img_bone
         else:
             return all_hands
+#B2: setup directory
+//img_dir = "..."
+//or
+//img_folder = "..."
 
-#setup directory
-folder_hand_path = "D:\Data_crop\classes"
-output_folder_hand_path = "D:\Data_crop\classes_image"
-output_folder_bone_path = "D:\Data_crop\classes_bone"
-output_folder_point_path = "D:\Data_crop\classes_point"
-done_folder_path = "D:\Data_crop\done"
+#B3.1: Processing -- 
+//đọc ảnh
+img = cv2.imread(img_dir)
+img_size = 300
+//tạo ảnh nền
+img_white = np.ones(img_size, img_size, 3) * 255 // tạo ảnh trắng
+img_black = np.zeros(...)  // tạo ảnh đen
+detector = HandDetector(maxHands=2)
+offset = 50
+hands, img_bone = detector.findHands(img)
+im.write(out_dir, img_bone) //xuất ra ảnh xương tay    
+if hands:
+    hand = hands[0]
+    try:
+        #output points
+        lm_list = hand["lmList"]
+        x_list = hand["xList"]
+        y_list = hand["yList"]
+        z_list = hand["zList"]
+        x_min = min(x_list)
+        x_max = max(x_list)
+        y_min = min(y_list)
+        y_max = max(y_list)
+        z_min = min(z_list)
+        z_max = max(z_list)
+    
+    lm_list = np.array(lm_list)
+    output_point_name = file_name + "_" + str(count) + ".txt"
+    output_point_path = os.path.join(child_output_folder_point_path, output_point_name)
+    np.savetxt(output_point_path, lm_list_normalize, fmt='%.2f')
+    
+    #output hand
+    x, y, w, h = hand['bbox']
+    
+    if h>=w:
+        img_hand_crop = frame[y - offset:y + h + offset, x - offset:x + h + offset]
+    else:
+        img_hand_crop = frame[y - offset:y + w + offset, x - offset:x + w + offset]
 
+/////bỏ từ đây
 
 for folder in os.listdir(folder_hand_path):
     #Create path
@@ -108,9 +115,9 @@ for folder in os.listdir(folder_hand_path):
     for file_video in os.listdir(child_folder_hand_path):
         video_hand_path = os.path.join(child_folder_hand_path, file_video)
         print(file_video)
-        file_name = file_video.rstrip(".mp4")
-        cap = cv2.VideoCapture(video_hand_path)
-        frame_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        //file_name = file_video.rstrip(".mp4")
+        //cap = cv2.VideoCapture(video_hand_path)
+        //frame_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         detector = HandDetector(maxHands=2)
         offset = 50
         img_size = 300
