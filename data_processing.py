@@ -102,6 +102,13 @@ if hands:
     else:
         img_hand_crop = frame[y - offset:y + w + offset, x - offset:x + w + offset]
 
+
+//B3.2 Chạy nhiều ảnh
+img_folder_dir = "..."
+for img_dir in os.listdir(img_folder_dir):
+    img = cv2.imread(img_dir)
+
+
 /////bỏ từ đây
 
 for folder in os.listdir(folder_hand_path):
