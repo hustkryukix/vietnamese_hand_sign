@@ -90,10 +90,6 @@ if hands:
         z_max = max(z_list)
     
     lm_list = np.array(lm_list)
-    output_point_name = file_name + "_" + str(count) + ".txt"
-    output_point_path = os.path.join(child_output_folder_point_path, output_point_name)
-    np.savetxt(output_point_path, lm_list_normalize, fmt='%.2f')
-    
     #output hand
     x, y, w, h = hand['bbox']
     
@@ -101,13 +97,32 @@ if hands:
         img_hand_crop = frame[y - offset:y + h + offset, x - offset:x + h + offset]
     else:
         img_hand_crop = frame[y - offset:y + w + offset, x - offset:x + w + offset]
-
+    //
+    cv2.imwrite(output_bone_path, img_white)
 
 //B3.2 Chạy nhiều ảnh
-img_folder_dir = "..."
-for img_dir in os.listdir(img_folder_dir):
-    img = cv2.imread(img_dir)
-
+total_folder_dir = "..." //đường dẫn đến folder tổng
+folder_out_dir = "..." //đường dẫn đến folder out
+for folder_name in os.listdir(total_folder_dir):
+    //folder_dir = os.path.join(total_folder_dir, folder_name)  // trên thì có for
+    //or
+    //folder_dir = "..." //ném vào đây //dưới thì không for, ném từng cái 
+    
+    for img_name in os.listdir(img_folder_dir):
+        img_dir = os.path.join(img_folder_dir, img_name)
+        img = cv2.imread(img_dir)
+        .
+        .
+        .
+        (chạy hand detector)
+        .
+        .
+        .
+        //có img_bone
+        img_out = img_bone
+        bone_img_name = "bone_" + img_name
+        img_folder_out_dir = os.path.join("đường đẫn đến folder chứa ảnh từng chữ", bone_img_name)
+        cv2.imwrite(img_folder_out_dir, img_out)
 
 /////bỏ từ đây
 
